@@ -1,4 +1,5 @@
 Créé par Lukyous.
+le programme lance un cmd, si l'utilisateur le ferme alors 2 cmd s'ouvre.
 pour l'utiliser en arrière point utiliser pyinstaller pour transformer le programme en exécutable.
 ouvrer cmd, marquer pip install pyinstaller
 allez dans le dossier du programme et ouvrer cmd à cet endroit
